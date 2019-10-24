@@ -145,7 +145,7 @@ open class QRCodeReader: NSObject, AVCaptureMetadataOutputObjectsDelegate {
         
         session.addOutput(metadataOutput)
         metadataOutput.setMetadataObjectsDelegate(self, queue: metadataObjectsQueue)
-        metadataOutput.metadataObjectTypes = [.qr, .aztec]
+        metadataOutput.metadataObjectTypes = [.qr, .aztec, .dataMatrix]
         previewLayer.videoGravity = .resizeAspectFill
         
         session.commitConfiguration()
