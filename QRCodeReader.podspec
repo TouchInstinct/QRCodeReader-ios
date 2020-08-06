@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'QRCodeReader'
-  s.version          = '1.0.2'
+  s.version          = '1.0.3'
   s.summary          = 'iOS framework contain core view elements and logic component for work with QR codes.'
   s.homepage         = 'https://github.com/TouchInstinct/QRCodeReader-ios'
   
