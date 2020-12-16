@@ -121,8 +121,18 @@ open class QRCodeReader: NSObject, AVCaptureMetadataOutputObjectsDelegate {
         set {
             do {
                 try defaultDevice?.lockForConfiguration()
-                defaultDevice?.torchMode = newValue ? .on : .off
-                defaultDevice?.unlockForConfiguration()
+                defer {
+                    defaultDevice?.unlockForConfiguration()
+                }
+
+                let newTorchMode: AVCaptureDevice.TorchMode = newValue ? .on : .off
+                let isTorchModeSupported = defaultDevice?.isTorchModeSupported(newTorchMode) ?? false
+
+                guard isTorchAvailable, isTorchModeSupported else {
+                    return
+                }
+
+                defaultDevice?.torchMode = newTorchMode
             } catch _ { }
         }
         
