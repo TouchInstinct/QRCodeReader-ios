@@ -23,124 +23,15 @@
 import UIKit
 import AVFoundation
 
-open class QRCodeReader: NSObject, AVCaptureMetadataOutputObjectsDelegate {
+open class QRCodeReader: BaseReader<AVMetadataMachineReadableCodeObject>, AVCaptureMetadataOutputObjectsDelegate {
 
-    private let sessionQueue = DispatchQueue(label: "qr_capture_session_queue")
     private let metadataObjectsQueue = DispatchQueue(label: "qr_metadata_objects_queue", attributes: [], target: nil)
-    
-    internal weak var readerView: QRCodeReaderView?
-    
-    lazy var defaultDeviceInput: AVCaptureDeviceInput? = {
-        guard let defaultDevice = defaultDevice else {
-            return nil
-        }
-
-        return try? AVCaptureDeviceInput(device: defaultDevice)
-    }()
-
-    // MARK: - Public Properties
-    
-    let session = AVCaptureSession()
 
     let metadataOutput = AVCaptureMetadataOutput()
     
-    let previewLayer: AVCaptureVideoPreviewLayer
-
-    public let defaultDevice: AVCaptureDevice? = .default(for: .video)
-
-    public var stopScanningWhenCodeIsFound: Bool = true
-
-    public var didFindCode: ((AVMetadataMachineReadableCodeObject) -> Void)?
-
-    public var didFailDecoding: (() -> Void)?
-
-    // MARK: - Public Initializer
-
-    public override init() {
-        previewLayer = AVCaptureVideoPreviewLayer(session: session)
-
-        super.init()
-
-        sessionQueue.async {
-            self.configureDefaultComponents()
-        }
-    }
-    
-    // MARK: - Deinitializer
-    
-    deinit {
-        isTorchEnabled = false
-    }
-    
-    // MARK: - Checking the Reader Availabilities
-    
-    public class func isAvailable() -> Bool {
-        guard let captureDevice = AVCaptureDevice.default(for: .video) else {
-            return false
-        }
-        
-        return (try? AVCaptureDeviceInput(device: captureDevice)) != nil
-    }
-
-    // MARK: - Controlling Reader
-
-    public func startScanning() {
-        readerView?.updateRectOfInterestBasedOnFocusView()
-        
-        sessionQueue.async {
-            guard !self.session.isRunning else {
-                return
-            }
-
-            self.session.startRunning()
-        }
-    }
-
-    public func stopScanning() {
-        sessionQueue.async {
-            guard self.session.isRunning else {
-                return
-            }
-
-            self.session.stopRunning()
-        }
-    }
-
-    public var isRunning: Bool {
-        return session.isRunning
-    }
-
-    public var isTorchAvailable: Bool {
-        return defaultDevice?.isTorchAvailable ?? false
-    }
-    
-    public var isTorchEnabled: Bool {
-        get {
-            return defaultDevice?.torchMode == .on
-        }
-        set {
-            do {
-                try defaultDevice?.lockForConfiguration()
-                defer {
-                    defaultDevice?.unlockForConfiguration()
-                }
-
-                let newTorchMode: AVCaptureDevice.TorchMode = newValue ? .on : .off
-                let isTorchModeSupported = defaultDevice?.isTorchModeSupported(newTorchMode) ?? false
-
-                guard isTorchAvailable, isTorchModeSupported else {
-                    return
-                }
-
-                defaultDevice?.torchMode = newTorchMode
-            } catch _ { }
-        }
-        
-    }
-    
     // MARK: - Private Methods
     
-    private func configureDefaultComponents() {
+    override func configureDefaultComponents() {
 
         for output in session.outputs {
             session.removeOutput(output)
@@ -185,7 +76,7 @@ open class QRCodeReader: NSObject, AVCaptureMetadataOutputObjectsDelegate {
                     }
 
                     DispatchQueue.main.async {
-                        self.didFindCode?(readableCodeObject)
+                        self.didFind?(readableCodeObject)
                     }
                 } else {
                     DispatchQueue.main.async {

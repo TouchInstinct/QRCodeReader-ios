@@ -22,9 +22,9 @@
 
 import UIKit
 
-open class QRCodeOverlayView: UIView {
+open class OverlayView: UIView {
 
-    public weak var focusView: QRCodeFocusView?
+    public weak var focusView: FocusView?
 
     override open func draw(_ rect: CGRect) {
 
