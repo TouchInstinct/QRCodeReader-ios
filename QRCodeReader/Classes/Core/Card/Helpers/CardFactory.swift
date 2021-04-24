@@ -23,7 +23,7 @@
 import Foundation
 
 public struct Card {
-    let number: String
+    public let number: String
     
     public init(number: String) {
         self.number = number
