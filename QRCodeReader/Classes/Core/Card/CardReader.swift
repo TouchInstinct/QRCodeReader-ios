@@ -40,7 +40,7 @@ open class CardReader: BaseReader<Card> {
     
     private let videoDataOutput = AVCaptureVideoDataOutput()
 
-    init(factory: CardFactory, onUpdateRectOfInterest: (() -> Void)?) {
+    public init(factory: CardFactory, onUpdateRectOfInterest: (() -> Void)?) {
         self.factory = factory
         
         super.init(onUpdateRectOfInterest: onUpdateRectOfInterest)

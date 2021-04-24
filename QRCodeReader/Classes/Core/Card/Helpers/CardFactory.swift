@@ -26,9 +26,7 @@ public struct Card {
     let number: String
 }
 
-open class CardFactory {
+public protocol CardFactory {
     
-    func create(_ values: [String]) -> Card? {
-        nil
-    }
+    func create(_ values: [String]) -> Card?
 }
