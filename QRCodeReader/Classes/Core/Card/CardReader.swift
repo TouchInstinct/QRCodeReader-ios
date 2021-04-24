@@ -63,12 +63,20 @@ open class CardReader: BaseReader<Card> {
             session.addInput(defaultDeviceInput)
         }
         
+        session.sessionPreset = .hd1920x1080
+        
         videoDataOutput.alwaysDiscardsLateVideoFrames = true
         videoDataOutput.setSampleBufferDelegate(self, queue: scannerObjectsQueue)
-        videoDataOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
+        videoDataOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_420YpCbCr8BiPlanarFullRange]
 
         session.addOutput(videoDataOutput)
     
+        if ((try? defaultDevice?.lockForConfiguration()) != nil) {
+            defaultDevice?.videoZoomFactor = 2
+            defaultDevice?.autoFocusRangeRestriction = .near
+            defaultDevice?.unlockForConfiguration()
+        }
+        
         previewLayer.videoGravity = .resizeAspectFill
         
         session.commitConfiguration()
