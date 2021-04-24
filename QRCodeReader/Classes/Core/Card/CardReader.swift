@@ -32,7 +32,7 @@ open class CardReader: BaseReader<Card> {
     
     private var request: VNRecognizeTextRequest {
         let request = VNRecognizeTextRequest(completionHandler: recognizeTextHandler)
-        request.recognitionLevel = .fast
+        request.recognitionLevel = .accurate
         request.usesLanguageCorrection = false
         
         return request
