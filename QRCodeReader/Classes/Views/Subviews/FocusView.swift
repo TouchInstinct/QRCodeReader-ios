@@ -22,59 +22,64 @@
 
 import UIKit
 
-open class QRCodeReaderView: UIView {
+open class FocusView: UIView {
 
-    private let cameraView = UIView()
+    public var cornerColor: UIColor {
+        didSet {
+            if cornerColor != oldValue {
+                setNeedsDisplay()
+            }
+        }
+    }
     
-    private weak var reader: QRCodeReader?
+    public var cornerLength: CGFloat {
+        didSet {
+            if cornerLength != oldValue {
+                setNeedsDisplay()
+            }
+        }
+    }
+    
+    public var cornerThickness: CGFloat {
+        didSet {
+            if cornerThickness != oldValue {
+                setNeedsDisplay()
+            }
+        }
+    }
+    
+    // MARK: - Public Initializers
 
-    public let overlay = QRCodeOverlayView()
-
-    // MARK: - Intializers
-
-    public init() {
-        super.init(frame: .zero)
-
-        overlay.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+    public init(cornerColor: UIColor,
+                cornerLength: CGFloat,
+                cornerThickness: CGFloat) {
         
-        addSubview(cameraView)
-        addSubview(overlay)
+        self.cornerColor = cornerColor
+        self.cornerLength = cornerLength
+        self.cornerThickness = cornerThickness
+
+        super.init(frame: .zero)
     }
 
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    // MARK: - Public Methods
-
-    public func setReader(_ reader: QRCodeReader) {
-        reader.readerView = self
-        self.reader = reader
-        
-        cameraView.layer.sublayers?.forEach {
-            $0.removeFromSuperlayer()
-        }
-
-        cameraView.layer.insertSublayer(reader.previewLayer, at: 0)
-    }
-
-    public func updateRectOfInterestBasedOnFocusView() {
-        guard let reader = reader, let focusView = overlay.focusView else {
-            return
-        }
-
-        let focusViewRect = convert(focusView.frame, from: focusView)
-        let interestRect = reader.previewLayer.metadataOutputRectConverted(fromLayerRect: focusViewRect)
-
-        reader.metadataOutput.rectOfInterest = interestRect
-    }
     
-    override open func layoutSubviews() {
-        super.layoutSubviews()
+    // MARK: - Public Methods
+    
+    override open func setNeedsDisplay() {
+        super.setNeedsDisplay()
         
-        reader?.previewLayer.frame = bounds
-        overlay.frame = bounds
+        // Go up into view hierarchy, find QRCodeOverlayView and redraw it
+        var currentSuperview = superview
         
-        updateRectOfInterestBasedOnFocusView()
+        while let view = currentSuperview {
+            if view is OverlayView {
+                view.setNeedsDisplay()
+                return
+            } else {
+                currentSuperview = view.superview
+            }
+        }
     }
 }
