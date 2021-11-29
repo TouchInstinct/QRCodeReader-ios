@@ -61,6 +61,8 @@ open class QRCodeReader: NSObject, AVCaptureMetadataOutputObjectsDelegate {
 
         super.init()
 
+        configureDefaultDevice()
+
         sessionQueue.async {
             self.configureDefaultComponents()
         }
@@ -141,6 +143,7 @@ open class QRCodeReader: NSObject, AVCaptureMetadataOutputObjectsDelegate {
     // MARK: - Private Methods
     
     private func configureDefaultComponents() {
+        session.sessionPreset = .hd4K3840x2160
 
         for output in session.outputs {
             session.removeOutput(output)
@@ -159,6 +162,28 @@ open class QRCodeReader: NSObject, AVCaptureMetadataOutputObjectsDelegate {
         previewLayer.videoGravity = .resizeAspectFill
         
         session.commitConfiguration()
+    }
+    
+    private func configureDefaultDevice() {
+        guard let device = defaultDevice else { return }
+
+        do {
+            try device.lockForConfiguration()
+
+            if device.isAutoFocusRangeRestrictionSupported {
+                device.autoFocusRangeRestriction = .near
+            }
+
+            if device.isFocusModeSupported(.continuousAutoFocus) {
+                device.focusMode = .continuousAutoFocus
+            }
+
+            if device.isLowLightBoostSupported {
+                device.automaticallyEnablesLowLightBoostWhenAvailable = true
+            }
+
+            device.unlockForConfiguration()
+        } catch _ { }
     }
 
     // MARK: - AVCaptureMetadataOutputObjectsDelegate
