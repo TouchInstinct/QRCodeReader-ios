@@ -143,9 +143,7 @@ open class QRCodeReader: NSObject, AVCaptureMetadataOutputObjectsDelegate {
     // MARK: - Private Methods
     
     private func configureDefaultComponents() {
-        if #available(iOS 9.0, *) {
-            session.sessionPreset = .hd4K3840x2160
-        }
+        session.sessionPreset = .hd4K3840x2160
 
         for output in session.outputs {
             session.removeOutput(output)
