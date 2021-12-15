@@ -143,10 +143,9 @@ open class QRCodeReader: NSObject, AVCaptureMetadataOutputObjectsDelegate {
     // MARK: - Private Methods
     
     private func configureDefaultComponents() {
-        if defaultDevice?.supportsSessionPreset(.hd4K3840x2160) {
+        if let defaultDevice = defaultDevice,
+           defaultDevice.supportsSessionPreset(.hd4K3840x2160) {
             session.sessionPreset = .hd4K3840x2160
-        } else {
-            session.sessionPreset = .photo
         }
 
         for output in session.outputs {
